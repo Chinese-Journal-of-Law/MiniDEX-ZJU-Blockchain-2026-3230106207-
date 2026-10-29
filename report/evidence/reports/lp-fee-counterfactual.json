@@ -1,0 +1,37 @@
+{
+  "method": "replay every logged swap, then compare identical inputs/order with fee=0 counterfactual",
+  "referencePrice": "final actual pool marginal price B per A, a modeling convention not oracle/market price",
+  "reconciliation": "PASS: integer-fee replay equals archived pre-withdraw reserves",
+  "swapCount": 554,
+  "initial": {
+    "A": "200",
+    "B": "200"
+  },
+  "actualAfterSwaps": {
+    "TKA": "200.071034144266621984",
+    "TKB": "200.095125164232252915"
+  },
+  "zeroFeeCounterfactual": {
+    "TKA": "199.987903091146271666",
+    "TKB": "200.012097640574005464"
+  },
+  "feeInputs": {
+    "TKA": "0.0831",
+    "TKB": "0.0831"
+  },
+  "valuationInTKAAtActualFinalPoolPrice": {
+    "priceBPerA": "1.0001204123328930236372363157268235625381006972466171345572965661",
+    "actualLPValueTKA": "400.14206828853324396800000000000000000000000000000000000000000000",
+    "zeroFeeCounterfactualLPValueTKA": "399.97591970808878230558101448836842446556355427185691129065771632",
+    "sameSwapsFeeModelUpliftTKA": "0.16614858044446166241898551163157553443644572814308870934228368",
+    "HODL200A200BValueTKA": "399.97592043289824504897027917425707672955677664472270577422481175",
+    "LPMinusHODLValueTKA": "0.16614785563499891902972082574292327044322335527729422577518825"
+  },
+  "limitations": [
+    "Counterfactual assumes identical order/amount of swaps even though fee differences could change user behavior.",
+    "End-point pool spot price is not an external oracle and cannot support fiat-denominated PnL.",
+    "0.3% input fee estimates are not tokens independently paid out to each LP.",
+    "Single-token valuation depends on price convention and does not independently quantify pure impermanent loss.",
+    "Per-user LP value requires share accounting; archived perUser withdrawals reflect balance changes, not fee-specific transfers."
+  ]
+}

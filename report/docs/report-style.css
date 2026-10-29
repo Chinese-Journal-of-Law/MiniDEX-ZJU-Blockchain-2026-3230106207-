@@ -1,0 +1,62 @@
+/* MiniDEX report preview: local reading/printing only. No external fonts or assets. */
+:root { color-scheme: light; }
+html, body { background: #f2f5f9 !important; }
+body, .markdown-body, .vscode-body, main {
+  font-family: "Noto Sans CJK SC", "Microsoft YaHei", "PingFang SC", "Source Han Sans SC", "Segoe UI", sans-serif !important;
+  color: #253044 !important;
+  font-size: 15.5px !important;
+  line-height: 1.9 !important;
+  letter-spacing: .015em;
+  -webkit-font-smoothing: antialiased;
+}
+body, .markdown-body, .vscode-body {
+  box-sizing: border-box;
+  max-width: 940px !important;
+  margin: 32px auto !important;
+  padding: 48px 64px !important;
+  background: white !important;
+  box-shadow: 0 6px 30px rgba(43,61,87,.065);
+  border-radius: 10px;
+}
+h1,h2,h3,h4 {
+  font-family: "Noto Sans CJK SC", "Microsoft YaHei", "PingFang SC", "Source Han Sans SC", sans-serif !important;
+  letter-spacing: -.015em;
+  color: #243653 !important;
+  font-weight: 700 !important;
+  line-height: 1.38 !important;
+}
+h1 { font-size: 29px !important; padding-bottom: 14px; border-bottom: 2px solid #dce5f1; margin: 0 0 24px !important; }
+h2 { font-size: 21px !important; margin: 48px 0 20px !important; padding-bottom: 9px; border-bottom: 1px solid #e3eaf3; }
+h3 { font-size: 17px !important; margin: 30px 0 12px !important; }
+p { margin: 13px 0 !important; }
+strong { color: #273955; font-weight: 650; }
+blockquote { color: #52657e; margin: 22px 0 !important; padding: 10px 18px !important; background: #f5f8fc; border-left: 3px solid #7185c7; border-radius: 0 6px 6px 0; }
+blockquote p { margin: 4px 0 !important; }
+code { color: #4959a2 !important; font-family: "Cascadia Code", "Consolas", "SFMono-Regular", monospace !important; background: #f0f3f8 !important; border-radius: 4px; padding: .08em .3em; font-size: .88em; }
+pre { overflow-x: auto; background: #f5f7fb !important; border: 1px solid #e3e8f1; border-radius: 8px; padding: 17px 20px !important; line-height: 1.55 !important; }
+pre code { background: none !important; padding: 0; color: #2d3954 !important; font-size: 13px; }
+table { width: 100%; border-collapse: collapse; margin: 22px 0 25px !important; font-size: 14px; }
+th { background: #eff3fa !important; color: #334869; font-weight: 700; }
+th, td { padding: 9px 13px !important; border: 1px solid #dfe6ef !important; vertical-align: top; line-height: 1.62; }
+tr:nth-child(even) td { background: #fafbfd; }
+img { display: block; max-width: 100%; max-height: 540px; object-fit: contain; margin: 24px auto 8px; border: 1px solid #e1e7f0; border-radius: 7px; }
+p > em:only-child { display: block; margin: 3px 0 26px; color: #6a7c91; font-size: 12.5px; font-style: normal; text-align: center; line-height: 1.6; }
+ul,ol { padding-left: 1.5em; }
+li { margin: 4px 0; padding-left: .1em; }
+.math { margin: 20px 0; overflow-x: auto; }
+a { color: #485fc7; text-decoration: none; }
+a:hover { text-decoration: underline; }
+@media (max-width: 780px) {
+  body,.markdown-body,.vscode-body { margin: 0 !important; border-radius: 0; padding: 24px 18px !important; box-shadow: none; }
+  h1 { font-size: 24px !important; }
+  table { display: block; overflow-x: auto; white-space: normal; }
+}
+@media print {
+  @page { size: A4; margin: 16mm 18mm; }
+  html, body { background: white !important; }
+  body,.markdown-body,.vscode-body { box-shadow: none !important; margin: 0 !important; padding: 0 !important; max-width: none !important; font-size: 11pt !important; line-height: 1.67 !important; }
+  h1,h2,h3, table, pre, img { break-inside: avoid; }
+  h2,h3 { break-after: avoid; }
+  img { max-height: 85mm; }
+  p > em:only-child { font-size: 9pt; }
+}

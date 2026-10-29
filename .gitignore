@@ -1,0 +1,38 @@
+﻿# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+cache/
+artifacts/
+coverage/
+*.tsbuildinfo
+
+# Sensitive configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local blockchain data
+ganache-db/
+chain-data/
+.ganache/
+
+# Temporary files
+*.log
+*.bak
+*.backup*
+*.tmp
+*.zip
+patch*.mjs
+ui_backup_before_v2_*/
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>MiniDEX实验报告</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="docs/report-style.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">MiniDEX实验报告</h1>
+</header>
+<h1 id="minidex-实验报告">MiniDEX 实验报告</h1>
+<p><strong>基于恒定乘积 AMM 的去中心化交易所与跨 DEX
+原子套利</strong></p>
+<p>浙江大学《区块链与数字货币》第二次作业</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">基本信息</th>
+<th style="text-align: left;">内容</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">学号 / 姓名</td>
+<td style="text-align: left;">【填写学号】 / 【填写姓名】</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">项目名称</td>
+<td style="text-align: left;">MiniDEX</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">开发环境</td>
+<td
+style="text-align: left;">Solidity、Hardhat、React、TypeScript、Ganache、MetaMask</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">GitHub 仓库</td>
+<td style="text-align: left;">【填写公开仓库链接】</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">实验日期</td>
+<td style="text-align: left;">2026 年 10 月</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>本报告以本地 Ganache 的历史链上操作、Hardhat
+隔离测试记录和保存的截图为依据。两类证据分别注明，不把模拟结果当作真实本地链的交易记录。</p>
+</blockquote>
+<h2 id="实验目标与整体方案">1. 实验目标与整体方案</h2>
+<p>这次作业要求实现一个采用 AMM 机制的
+DEX。除了代币兑换，还需要让用户在网页上创建交易池、提供和撤出流动性，并用
+ERC721 NFT 记录每个 LP 仓位。最后通过多用户模拟观察池的运行情况；Bonus
+则是利用两个 DEX 之间的价格差进行原子套利。</p>
+<p>我把项目分为三个部分：</p>
+<ul>
+<li><strong>智能合约</strong>：<code>MockToken.sol</code>
+负责测试代币及领取；<code>MiniDEX.sol</code> 负责池储备、Swap、LP 份额和
+NFT；<code>BonusAtomicArbitrage.sol</code> 用于跨 DEX 套利。</li>
+<li><strong>网页前端</strong>：使用 React、TypeScript 和
+ethers，提供钱包连接、池查询、Swap、流动性管理及 NFT 信息查询。</li>
+<li><strong>自动化测试</strong>：用 Hardhat EDR 建立隔离测试环境，运行
+20 用户持续模拟以及 Bonus 测试。</li>
+</ul>
+<p>实际开发时，我把两个网络严格分开：Ganache
+<code>aware-coil</code>（Chain ID
+<strong>1337</strong>）保留网页操作的历史状态；Hardhat EDR（Chain ID
+<strong>31337</strong>）只用于可重复的测试。这样做可以避免反复运行测试时覆盖已部署的
+Pool 1、Pool 2 和 NFT 仓位。</p>
+<h3 id="对照课程要求">1.1 对照课程要求</h3>
+<p>课程两版 PPT 分别要求至少 10 位和至少 20 位模拟用户。这里采用更严格的
+<strong>20 位</strong>标准。完成情况如下。</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">课程要求</th>
+<th style="text-align: left;">实际完成的内容</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">ERC20 代币及多人领取</td>
+<td style="text-align: left;">TKA、TKB、TKC；自动化测试包含 20 人、40
+次领取</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">前端创建 AMM 池、Swap</td>
+<td style="text-align: left;">已创建 TKA/TKB、TKA/TKC
+池；有网页交易记录</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">添加/撤出流动性、LP NFT</td>
+<td style="text-align: left;">NFT #5、#6 的加池记录；#6 已执行赎回</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">展示 NFT 与各池 LP 来源</td>
+<td
+style="text-align: left;">查看池、持有人、原始投入、份额和创建时间</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">手续费及 LP 收益</td>
+<td style="text-align: left;">0.3%
+费用模型；提供逐用户与反事实对照数据</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">多用户持续运行</td>
+<td style="text-align: left;">20 用户，60.065 秒，674 笔成功交易</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Bonus 双 DEX 套利</td>
+<td style="text-align: left;">用户交易形成价差；自动选路、同笔两次
+Swap、失败回滚</td>
+</tr>
+</tbody>
+</table>
+<h2 id="amm-与合约实现">2. AMM 与合约实现</h2>
+<h3 id="代币与交易池">2.1 代币与交易池</h3>
+<p><code>MockToken</code> 是用于实验的 ERC20 代币。领取函数通过
+<code>hasClaimed</code> 限制每个地址只领取一次，数量为 1000 枚。Ganache
+工作区实际使用 TKA、TKB、TKC 三种代币，其中 Pool 1 使用 TKA/TKB，Pool 2
+使用 TKA/TKC。</p>
+<p>网页能够读取 ERC20
+地址并检查池是否已经存在。成功创建后，合约保存币对、储备和创建时间。重复币对以及不合法的代币地址会被拒绝。这里的关键不只是能调用
+<code>createPool()</code>，而是要保证链上池信息能够在网页中被重新读取。</p>
+<figure>
+<img src="docs/images/historic_03_pool2_create_web_receipt.png"
+alt="Pool 2 创建成功的网页记录" />
+<figcaption aria-hidden="true">Pool 2 创建成功的网页记录</figcaption>
+</figure>
+<p><em>图 1　Pool 2 在 Ganache 1337 上通过网页创建的历史记录。</em></p>
+<h3 id="恒定乘积与手续费">2.2 恒定乘积与手续费</h3>
+<p>交易池按照恒定乘积模型定价。在不计手续费时，两种代币的储备满足：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mspace width="0.167em"></mspace><mi>y</mi><mo>=</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">
+x\,y=k
+</annotation></semantics></math></p>
+<p>其中，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+和
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+分别是池内两种代币的储备，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+是它们的乘积。实际 Swap 使用 <strong>0.3%</strong>
+输入手续费，报价的整数计算可写为：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Δ</mi><mi>y</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">⌊</mo><mfrac><mrow><mn>997</mn><mspace width="0.167em"></mspace><mi>Δ</mi><mi>x</mi><mspace width="0.167em"></mspace><mi>y</mi></mrow><mrow><mn>1000</mn><mi>x</mi><mo>+</mo><mn>997</mn><mspace width="0.167em"></mspace><mi>Δ</mi><mi>x</mi></mrow></mfrac><mo stretchy="true" form="postfix">⌋</mo></mrow></mrow><annotation encoding="application/x-tex">
+\Delta y=\left\lfloor\frac{997\,\Delta x\,y}{1000x+997\,\Delta x}\right\rfloor
+</annotation></semantics></math></p>
+<p>公式里的 <code>997/1000</code>
+就是扣除手续费后的有效输入比例。输出使用整数向下取整，交易时还通过
+<code>minAmountOut</code> 约束最小接收数量。<strong>0.3%
+交易手续费</strong>和前端设置的 <strong>1%
+滑点保护</strong>是不同的东西，前者影响报价，后者用于限制价格变化带来的不利成交。</p>
+<h3 id="实际-swap">2.3 实际 Swap</h3>
+<p>Pool 1 完成过真实网页 Swap，交易后 TKA/TKB
+储备发生变化。现在的美化版页面将实际 Swap
+入口放在左侧，右侧独立提供跨池的双向只读报价；只读报价不调用钱包签名，也不会发送交易。</p>
+<figure>
+<img src="docs/images/ui_02_swap_readonly.png"
+alt="美化后的 Swap 与只读报价页面" />
+<figcaption aria-hidden="true">美化后的 Swap 与只读报价页面</figcaption>
+</figure>
+<p><em>图 2　新版 Swap
+页面。截图中右侧池列表尚未刷新，因此没有把空状态当作实时报价结果。</em></p>
+<figure>
+<img src="docs/images/legacy_01_trader_web_swap_after.png"
+alt="早期网页 Swap 后的结果" />
+<figcaption aria-hidden="true">早期网页 Swap 后的结果</figcaption>
+</figure>
+<p><em>图 3　此前网页真实 Swap
+后的记录，用于说明链上交易流程已经跑通。</em></p>
+<h2 id="流动性与-lp-nft">3. 流动性与 LP NFT</h2>
+<h3 id="份额如何计算">3.1 份额如何计算</h3>
+<p>第一次向空池添加流动性时，合约按两种投入量的几何平均数铸造份额：<code>sqrt(amountA * amountB)</code>。池已存在时，新增投入必须与现有储备保持比例一致，并按照当前总份额分配新的
+LP 份额。</p>
+<p>与直接记录“这个地址占有多少流动性”不同，MiniDEX
+为每次成功加池生成独立的 ERC721 NFT。仓位中保存池
+ID、原始投入、份额和创建时间，之后可按该 NFT 单独赎回。</p>
+<h3 id="pool-2-的加池与赎回过程">3.2 Pool 2 的加池与赎回过程</h3>
+<p>Pool 2 初始流动性为 <strong>100 TKA + 100
+TKC</strong>。为验证非首次加池，我又在同一池中追加 <strong>10 TKA + 10
+TKC</strong>。加池前先读取储备、钱包余额和授权额度；当时两种代币的
+allowance 都是 0，因此必须分开完成授权，再执行加池。</p>
+<p>成功交易铸造了 <strong>NFT #6</strong>，份额为
+<strong>10</strong>。池储备从 100/100 增加到 110/110，总份额从 100
+增加到 110。这里没有把预估编号当作结果，而是以真实回执中的 NFT
+编号为准。</p>
+<figure>
+<img src="docs/images/03_nft6_deposit_receipt.png"
+alt="NFT 6 加池交易回执" />
+<figcaption aria-hidden="true">NFT 6 加池交易回执</figcaption>
+</figure>
+<p><em>图 4　追加 10+10 后铸造 NFT #6
+的回执；交易哈希：<code>0xff609f30b8ab2471f3e394d008305aac4f38f7e413082c3b4715b7a98cebd9b9</code>。</em></p>
+<p>随后选择 NFT #6
+进行撤池测试。赎回前通过只读检查确认持有人、仓位份额和预计返还数量，再执行一笔
+<code>removeLiquidity</code>。实际收到 <strong>10 TKA + 10
+TKC</strong>，NFT #6 的仓位被赎回，Pool 2 储备和总份额均恢复到 100。</p>
+<figure>
+<img src="docs/images/06_nft6_redeem_receipt.png"
+alt="NFT 6 赎回结果" />
+<figcaption aria-hidden="true">NFT 6 赎回结果</figcaption>
+</figure>
+<p><em>图 5　NFT #6
+赎回成功的网页回执；交易哈希：<code>0xba5f375f3cc9efd4e8fc0b9442af7570adf0ab979b911416356bfb69cdab1c55</code>。</em></p>
+<figure>
+<img src="docs/images/07_pool2_after_redeem.png"
+alt="赎回后的 Pool 2" />
+<figcaption aria-hidden="true">赎回后的 Pool 2</figcaption>
+</figure>
+<p><em>图 6　赎回后 Pool 2 恢复到 100/100，NFT #6 不再列为活跃 LP
+来源。严格验证 NFT 销毁还可追加一次 <code>ownerOf(6)</code>
+的只读不存在检查。</em></p>
+<p>赎回并不是按原始投入数量固定返还。若用户持有份额
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>，池当前总份额为
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>、两种储备分别为
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>A</mi></msub><annotation encoding="application/x-tex">R_A</annotation></semantics></math>
+和
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>B</mi></msub><annotation encoding="application/x-tex">R_B</annotation></semantics></math>，那么理论返还数量是：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>A</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">⌊</mo><mfrac><mrow><mi>s</mi><msub><mi>R</mi><mi>A</mi></msub></mrow><mi>S</mi></mfrac><mo stretchy="true" form="postfix">⌋</mo></mrow><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>B</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">⌊</mo><mfrac><mrow><mi>s</mi><msub><mi>R</mi><mi>B</mi></msub></mrow><mi>S</mi></mfrac><mo stretchy="true" form="postfix">⌋</mo></mrow></mrow><annotation encoding="application/x-tex">
+A_{out}=\left\lfloor\frac{sR_A}{S}\right\rfloor,\qquad
+B_{out}=\left\lfloor\frac{sR_B}{S}\right\rfloor
+</annotation></semantics></math></p>
+<p>因此，在发生 Swap 后，即便 LP
+份额没有改变，最终取回的两种代币数量也可能不同于投入时。NFT #4（Pool
+1）和 NFT #5（Pool 2）保留为原有仓位，本次赎回只针对 NFT #6。</p>
+<h3 id="仓位与流动性来源查询">3.3 仓位与流动性来源查询</h3>
+<p>前端可以按池查看活跃 LP NFT，也能读取 NFT
+持有人、原始投入和创建时间。新版页面把这些数据放在单独的“LP NFT
+仓位”区域，并将历史赎回和安全核验与普通信息查询区分开。</p>
+<figure>
+<img src="docs/images/ui_05_lp_nft.png" alt="新版 LP NFT 仓位页面" />
+<figcaption aria-hidden="true">新版 LP NFT 仓位页面</figcaption>
+</figure>
+<p><em>图 7　新版 LP NFT
+页面。部分卡片需要点击只读查询后才显示最新状态。</em></p>
+<h2 id="用户持续模拟与费用分析">4. 20 用户持续模拟与费用分析</h2>
+<h3 id="模拟方式">4.1 模拟方式</h3>
+<p>我没有用 Ganache 的历史工作区跑批量测试，而是用 Hardhat EDR 31337
+单独部署合约。测试包含 <strong>20
+个不同地址</strong>。每个地址都完成领取、授权、加池、Swap
+和撤池动作；Swap 阶段按固定顺序轮换用户、双向交易，持续时间设为 60
+秒。</p>
+<p>这更接近一项可重复的持续功能测试，而不是测量系统的最大
+TPS。它的目的主要是检查交易长时间连续执行时，储备、NFT
+份额和用户资产记录是否保持一致。</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">操作</th>
+<th style="text-align: right;">交易数</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">ERC20 领取</td>
+<td style="text-align: right;">40</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ERC20 授权</td>
+<td style="text-align: right;">40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">添加流动性</td>
+<td style="text-align: right;">20</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">双向 Swap</td>
+<td style="text-align: right;">554</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">撤出流动性</td>
+<td style="text-align: right;">20</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>合计</strong></td>
+<td style="text-align: right;"><strong>674</strong></td>
+</tr>
+</tbody>
+</table>
+<figure>
+<img src="docs/figures/transaction_breakdown.png"
+alt="20 用户交易构成" />
+<figcaption aria-hidden="true">20 用户交易构成</figcaption>
+</figure>
+<p><em>图 8　持续模拟中各类交易的数量；数据来自保存的 JSON
+报告。</em></p>
+<p>本次回归实测 <strong>60.065 秒</strong>，共确认 <strong>674
+笔交易</strong>，其中 <strong>554 次 Swap</strong>，两种交易方向各 277
+次；报告记录的失败交易为 <strong>0</strong>。每位用户的 LP
+仓位也有单独的核算记录。</p>
+<h3 id="手续费和-lp-收益的区别">4.2 手续费和 LP 收益的区别</h3>
+<p>这里曾经容易混淆两个概念：<strong>交易收取了多少手续费</strong>，以及
+<strong>LP 最后取回的资产比投入多了多少</strong>。</p>
+<p>20 用户测试中，TKA 和 TKB 两个输入方向的交易量各为
+<strong>27.7</strong>，按 0.3% 费率估算，各自手续费为 <strong>0.0831
+枚对应代币</strong>。两种代币不能在没有价格换算的情况下直接相加成一种币的收益。</p>
+<p>在撤池前，池的储备变化为：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">口径</th>
+<th style="text-align: right;">TKA</th>
+<th style="text-align: right;">TKB</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">初始储备</td>
+<td style="text-align: right;">200</td>
+<td style="text-align: right;">200</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">554 次 Swap 后</td>
+<td style="text-align: right;">200.071034144266621984</td>
+<td style="text-align: right;">200.095125164232252915</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">相对初始值的数量变化</td>
+<td style="text-align: right;">+0.071034144266621984</td>
+<td style="text-align: right;">+0.095125164232252915</td>
+</tr>
+</tbody>
+</table>
+<p>这两项数量变化<strong>不能直接称为 LP
+净利润</strong>，因为交易也改变了池内的代币组成。</p>
+<p>为了检查费用模型，我把 554 次 Swap
+的方向和输入数量按原顺序重放，重新执行与合约一致的整数计算，得到的储备与报告逐
+wei 一致。随后又把相同交易序列放进一个“不收手续费”的反事实池中比较：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">模型</th>
+<th style="text-align: right;">TKA 终态储备</th>
+<th style="text-align: right;">TKB 终态储备</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">实际 0.3% 费率</td>
+<td style="text-align: right;">200.071034144266621984</td>
+<td style="text-align: right;">200.095125164232252915</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">不收手续费的对照</td>
+<td style="text-align: right;">199.987903091146271666</td>
+<td style="text-align: right;">200.012097640574005464</td>
+</tr>
+</tbody>
+</table>
+<p>按照<strong>实际终态池边际价格</strong>把两种资产统一折成
+TKA，含费池相对无费对照的模型价值差约为 <strong>0.16614858
+TKA</strong>。这是“固定同一交易序列”的比较，不是 LP
+在真实市场中额外领取的现金分红，也没有将价格波动及无常损失完全剥离。</p>
+<p>原始记录保存在
+<code>evidence/reports/20-users-sustained-final.json</code> 和
+<code>evidence/reports/lp-fee-counterfactual.json</code>，便于复查计算过程。</p>
+<h2 id="bonus双-dex-原子套利">5. Bonus：双 DEX 原子套利</h2>
+<h3 id="价差不是预先设好的">5.1 价差不是预先设好的</h3>
+<p>基础测试曾直接给两个 DEX
+不同的初始储备，用来检验套利合约能否盈利。为了更贴近 PPT 对 Bonus
+的要求，我又增加了一个实验：<strong>两个独立 DEX
+从相同价格开始，由模拟用户交易产生价差</strong>。</p>
+<p>测试在 EDR 31337 上部署两个 MiniDEX 实例，初始 TKA/TKB 价格均为 B/A =
+1。随后由 <strong>8 个不同模拟交易地址</strong>按固定种子
+<code>20261028</code> 执行 <strong>20
+笔交易</strong>。交易完成后，两个池的边际价格分别变为：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">状态</th>
+<th style="text-align: right;">DEX 1（B/A）</th>
+<th style="text-align: right;">DEX 2（B/A）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">初始价格</td>
+<td style="text-align: right;">1.000000</td>
+<td style="text-align: right;">1.000000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">用户交易后</td>
+<td style="text-align: right;">0.743491</td>
+<td style="text-align: right;">1.368262</td>
+</tr>
+</tbody>
+</table>
+<figure>
+<img src="docs/figures/bonus_price_divergence.png"
+alt="两 DEX 模拟交易前后的价格差" />
+<figcaption aria-hidden="true">两 DEX 模拟交易前后的价格差</figcaption>
+</figure>
+<p><em>图 9　20 笔模拟交易使两个 DEX 的价格发生分化。这里是 8
+个交易地址，不是 20 个独立用户。</em></p>
+<h3 id="自动比较报价并执行套利">5.2 自动比较报价并执行套利</h3>
+<p>检测逻辑不只比较标称价格，而是按当前储备计算两条路线的<strong>两次实际
+Swap 报价</strong>，其中都包含 0.3% 的交易手续费。给定 <strong>5
+TKA</strong> 本金，检测到更有利的路线为 <code>DEX2_to_DEX1</code>：</p>
+<ol type="1">
+<li>在 DEX 2 使用 TKA 买入 TKB；</li>
+<li>将得到的 TKB 在 DEX 1 卖出，换回 TKA。</li>
+</ol>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">项目</th>
+<th style="text-align: right;">实测结果</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">投入</td>
+<td style="text-align: right;">5 TKA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">第一次 Swap 得到</td>
+<td style="text-align: right;">6.445055888983176297 TKB</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">第二次 Swap 换回</td>
+<td style="text-align: right;">8.043361852507376573 TKA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>毛利润</strong></td>
+<td style="text-align: right;"><strong>3.043361852507376573
+TKA</strong></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">同一回执中的 Swap 事件</td>
+<td style="text-align: right;">2 次</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Gas 使用量</td>
+<td style="text-align: right;">166,829 units</td>
+</tr>
+</tbody>
+</table>
+<p>测试回执中两次 Swap
+事件来自<strong>同一笔交易</strong>。当把最低利润目标设为不可能达到的
+100 TKA 时，整笔调用回滚，两个 DEX
+的储备和套利合约余额均保持不变。这是原子性的主要验证。</p>
+<p>此次套利使用预先准备的测试 Token 作为本金，并不是闪电贷。Gas
+成本记录为 <strong>22070976213
+wei</strong>（原生测试币），不能在缺少合理汇率时直接从以 TKA
+计价的毛利润中扣除。</p>
+<figure>
+<img src="docs/images/10_bonus_atomic_pass.png"
+alt="早期基础原子套利测试" />
+<figcaption aria-hidden="true">早期基础原子套利测试</figcaption>
+</figure>
+<p><em>图 10　较早的基础测试采用预设价差；本节 5 TKA 的增强实验以
+<code>bonus-rubric-final.json</code> 为准，二者不是同一次交易。</em></p>
+<h2 id="前端展示与测试复现">6. 前端展示与测试复现</h2>
+<h3 id="页面组织">6.1 页面组织</h3>
+<p>最初页面按功能逐段堆叠，操作入口分散，录屏时也很难在短时间内展示完整流程。后来把界面整理为六个区域：总览、代币兑换、交易池、流动性、LP
+NFT
+仓位、验证与安全。这样既能保留真实业务入口，又能将只读查询和历史测试成果单独展示。</p>
+<figure>
+<img src="docs/images/ui_01_dashboard_connected.png" alt="最新版首页" />
+<figcaption aria-hidden="true">最新版首页</figcaption>
+</figure>
+<p><em>图 11　连接 Ganache 1337 钱包后的首页，可查看余额和 Pool 1
+储备。</em></p>
+<figure>
+<img src="docs/images/ui_06_validation.png" alt="实验验证页面" />
+<figcaption aria-hidden="true">实验验证页面</figcaption>
+</figure>
+<p><em>图 12　实验验证页区分 Ganache 1337 的历史交易和 Hardhat 31337
+的模拟结果。</em></p>
+<h3 id="本地运行与回归命令">6.2 本地运行与回归命令</h3>
+<p>项目在 Windows 环境中运行，前端与合约分别安装依赖。隔离测试不需要连接
+Ganache：</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 项目根目录下</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">Set-Location</span> <span class="op">.</span>\contracts</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>npm install</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>npx hardhat compile</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>npx hardhat test mocha test<span class="op">/</span>bonus-atomic-arbitrage<span class="op">.</span><span class="fu">test</span><span class="op">.</span><span class="fu">mjs</span> test<span class="op">/</span>bonus-rubric-coverage<span class="op">.</span><span class="fu">test</span><span class="op">.</span><span class="fu">mjs</span> <span class="op">--</span>network hardhat</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="va">$env</span><span class="op">:</span><span class="va">SIMULATION_DURATION_MS</span> <span class="op">=</span> <span class="st">&#39;60000&#39;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="va">$env</span><span class="op">:</span><span class="va">SIMULATION_INTERVAL_MS</span> <span class="op">=</span> <span class="st">&#39;100&#39;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>npx hardhat test mocha test<span class="op">/</span>simulation-20-users<span class="op">.</span><span class="fu">test</span><span class="op">.</span><span class="fu">mjs</span> <span class="op">--</span>network hardhat</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">Set-Location</span> <span class="op">..</span>\frontend</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>npm install</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>npm test</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>npm run typecheck</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>npm run build</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>npm run dev</span></code></pre></div>
+<p>测试报告里已经记录了 Bonus 两个用例通过、20
+人持续模拟通过；此前前端有 <strong>5 个测试文件、12
+项测试</strong>通过的记录。<strong>视觉界面最新 V2
+安装后尚缺一张完整前端回归输出</strong>，因此提交前仍应在当前本地源码上再运行一次
+<code>npm test</code>、<code>npm run typecheck</code> 和
+<code>npm run build</code>。不要把旧版构建通过记录直接当作这次视觉改造的验证结果。</p>
+<h2 id="遇到的问题与实验总结">7. 遇到的问题与实验总结</h2>
+<p>项目中有几处问题值得记录。</p>
+<p><strong>第一，授权额度与真实交易是两回事。</strong> Pool 2 准备追加
+10+10 时，账户余额充足，但两种 Token 的 allowance 都为
+0。需要先分别授权，才能执行加池。后来将只读预检和正式写入分开，减少了重复发送交易的风险。</p>
+<p><strong>第二，合约编译与测试环境需要分别排查。</strong> Bonus
+合约一度遇到 Solidity
+<code>Stack too deep</code>，调整编译设置中的优化器和 <code>viaIR</code>
+后解决。20 用户模拟曾因 Hardhat 3 环境中的 <code>ethers</code>
+引用方式不匹配而在运行开始前失败，修正引用后测试才真正通过。这些错误和
+AMM 交易公式本身无关。</p>
+<p><strong>第三，NFT 的“原始投入”和“现在能取回多少”不能混用。</strong>
+份额代表的是池资产的比例；发生交易之后，池储备变了，NFT
+的赎回金额自然也可能变化。费用分析也是如此，单纯比较最终余额并不能把手续费贡献、市场价格变化和无常损失完全区分。</p>
+<p><strong>第四，测试结果要说明网络环境。</strong> Ganache
+的历史交易哈希和 NFT 编号来自现有本地链，Hardhat
+的交易是可重复的隔离测试，两者不能互相替代。</p>
+<p>从结果看，MiniDEX 已经覆盖了 ERC20 领取、网页建池、Swap、LP NFT
+添加和赎回等主要功能；20 用户持续模拟和 Bonus
+原子套利也有对应测试与数据文件。仍需注意，这是一套课程实验环境，未进行公开网络中的安全审计或实际经济风险评估，不能把本地测试的盈利数字理解成真实市场中可获得的利润。</p>
+<h2 id="资料与证据">资料与证据</h2>
+<ul>
+<li>课程作业要求：<code>docs/OFFICIAL_REQUIREMENTS.txt</code>（两版 PPT
+的作业页转录）。</li>
+<li>智能合约：<code>contracts/contracts/MiniDEX.sol</code>、<code>MockToken.sol</code>、<code>BonusAtomicArbitrage.sol</code>。</li>
+<li>持续模拟：<code>evidence/reports/20-users-sustained-final.json</code>。</li>
+<li>LP
+费用对照：<code>evidence/reports/lp-fee-counterfactual.json</code>。</li>
+<li>Bonus：<code>evidence/reports/bonus-rubric-final.json</code>。</li>
+<li>相关页面、交易和回执截图：<code>docs/images/</code>；统计图：<code>docs/figures/</code>。</li>
+<li>课程提供的参考项目：<a
+href="https://github.com/LBruyne/ZJU-blockchain-course-2026"
+class="uri">https://github.com/LBruyne/ZJU-blockchain-course-2026</a>。</li>
+</ul>
+<blockquote>
+<p>本报告中仍需要填写学号、姓名、GitHub
+地址。演示视频和正式邮件提交是报告以外的后续事项，不能用截图代替。</p>
+</blockquote>
+</body>
+</html>

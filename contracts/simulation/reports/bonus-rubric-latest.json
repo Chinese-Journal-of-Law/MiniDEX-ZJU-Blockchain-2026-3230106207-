@@ -1,0 +1,252 @@
+{
+  "title": "PPT Bonus rubric evidence: isolated two DEX user-driven price divergence",
+  "chain": "Hardhat EDR isolated 31337 (not Ganache 1337)",
+  "seed": 20261028,
+  "simulatedTraders": 8,
+  "traderTransactions": 20,
+  "tradeLogs": [
+    {
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "dex": "DEX1",
+      "direction": "TKA_to_TKB",
+      "amountIn": "3.0",
+      "amountOut": "2.904137254711576739",
+      "txHash": "0xb2cf613505c558a76efb6569d3c9b5a88257b3f30862a112e33aa2a1cd452daf",
+      "gasUsed": "79296",
+      "blockNumber": 48
+    },
+    {
+      "actor": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      "dex": "DEX2",
+      "direction": "TKB_to_TKA",
+      "amountIn": "2.0",
+      "amountOut": "1.955016961782065611",
+      "txHash": "0x92a5d605f01b9b04c69ad6ccbcb121fef3296faf1b9b8a2260a0d10f87d77a88",
+      "gasUsed": "79378",
+      "blockNumber": 49
+    },
+    {
+      "actor": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+      "dex": "DEX1",
+      "direction": "TKA_to_TKB",
+      "amountIn": "1.0",
+      "amountOut": "0.930840073819942479",
+      "txHash": "0x766eafbb4383d3c583109d0199ee1f63dc06048d7f4e903edcde2aa34fffcb1a",
+      "gasUsed": "79296",
+      "blockNumber": 50
+    },
+    {
+      "actor": "0x14dC79964da2C08b23698B3D3cc7Ca32193d9955",
+      "dex": "DEX2",
+      "direction": "TKB_to_TKA",
+      "amountIn": "3.0",
+      "amountOut": "2.793120784327321787",
+      "txHash": "0xe3b5901ccaab44e30e00b9292c8a24d7ce13c8b03d86fffd953747a5702e9306",
+      "gasUsed": "79378",
+      "blockNumber": 51
+    },
+    {
+      "actor": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+      "dex": "DEX1",
+      "direction": "TKA_to_TKB",
+      "amountIn": "2.0",
+      "amountOut": "1.809093488375834015",
+      "txHash": "0x6a8a862dd4424f5d8a856d05bb6ea54b3e48ff9a1a5f11f1e40c8b7dc3e916b7",
+      "gasUsed": "79296",
+      "blockNumber": 52
+    },
+    {
+      "actor": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+      "dex": "DEX1",
+      "direction": "TKA_to_TKB",
+      "amountIn": "1.0",
+      "amountOut": "0.879210271274366279",
+      "txHash": "0x13e0eb395a16da8a3e761516d141249a6fd4bd66b1f9b8ac3842bc5357dd514e",
+      "gasUsed": "79296",
+      "blockNumber": 53
+    },
+    {
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "dex": "DEX2",
+      "direction": "TKB_to_TKA",
+      "amountIn": "1.0",
+      "amountOut": "0.89593202323772315",
+      "txHash": "0x91b12802c9f45600f0f281d8fc1d92c862173265e35ecb6dd60facee6802f440",
+      "gasUsed": "79378",
+      "blockNumber": 54
+    },
+    {
+      "actor": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+      "dex": "DEX2",
+      "direction": "TKB_to_TKA",
+      "amountIn": "1.0",
+      "amountOut": "0.879210281035551751",
+      "txHash": "0xbd81c2d624f52d2cf4873a26cb9a7d7a925957b601166303c696096ebe3128de",
+      "gasUsed": "79378",
+      "blockNumber": 55
+    },
+    {
+      "actor": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+      "dex": "DEX1",
+      "direction": "TKA_to_TKB",
+      "amountIn": "1.0",
+      "amountOut": "0.862952570488836038",
+      "txHash": "0x445bc5b70214c6817fe2f6c7551276b5cce9f7884f76d4b930443993d10c2f3d",
+      "gasUsed": "79296",
+      "blockNumber": 56
+    },
+    {
+      "actor": "0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f",
+      "dex": "DEX1",
+      "direction": "TKA_to_TKB",
+      "amountIn": "1.0",
+      "amountOut": "0.847141894201725332",
+      "txHash": "0xa9d07324a0c5361f18127ac9f127ac7d50fd7e2c9463f6b732b02161e52adfcc",
+      "gasUsed": "79296",
+      "blockNumber": 57
+    },
+    {
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "dex": "DEX2",
+      "direction": "TKB_to_TKA",
+      "amountIn": "1.0",
+      "amountOut": "0.862952580069524946",
+      "txHash": "0x2b4bbaf8db13cd4d77e0cbafae6e24dceccf0390c3fe354d5e3ad2ab10af49c8",
+      "gasUsed": "79378",
+      "blockNumber": 58
+    },
+    {
+      "actor": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+      "dex": "DEX2",
+      "direction": "TKB_to_TKA",
+      "amountIn": "3.0",
+      "amountOut": "2.495767928952054742",
+      "txHash": "0xbc87c135de36aaf8efba5d94c38c0e40109b9e997624cbea3d4882548b38cd73",
+      "gasUsed": "79378",
+      "blockNumber": 59
+    },
+    {
+      "actor": "0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f",
+      "dex": "DEX1",
+      "direction": "TKA_to_TKB",
+      "amountIn": "2.0",
+      "amountOut": "1.648581447173474889",
+      "txHash": "0xca4065dc1c181ab67369081e827e0bf852839ab961caaf13521c915f5c2dcee6",
+      "gasUsed": "79296",
+      "blockNumber": 60
+    },
+    {
+      "actor": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+      "dex": "DEX1",
+      "direction": "TKA_to_TKB",
+      "amountIn": "3.0",
+      "amountOut": "2.364599543936478708",
+      "txHash": "0x24eec3d23f3d25d61fdb0b2cc3719f2cc516e4ac6c28f1a9e9ba8c255a467c03",
+      "gasUsed": "79296",
+      "blockNumber": 61
+    },
+    {
+      "actor": "0x976EA74026E726554dB657fA54763abd0C3a0aa9",
+      "dex": "DEX2",
+      "direction": "TKB_to_TKA",
+      "amountIn": "3.0",
+      "amountOut": "2.364598400986234985",
+      "txHash": "0x432ee543f33fb2c77ec52a5a0454fb2ec9080bb5eedad7496a269898011c95d6",
+      "gasUsed": "79378",
+      "blockNumber": 62
+    },
+    {
+      "actor": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+      "dex": "DEX2",
+      "direction": "TKB_to_TKA",
+      "amountIn": "1.0",
+      "amountOut": "0.760803680413321168",
+      "txHash": "0x6a047f0e36b8241c4b6c492f170aff57c0ec193311c5110534786f0f404a8d7e",
+      "gasUsed": "79378",
+      "blockNumber": 63
+    },
+    {
+      "actor": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      "dex": "DEX1",
+      "direction": "TKA_to_TKB",
+      "amountIn": "1.0",
+      "amountOut": "0.760804048154731968",
+      "txHash": "0xdc912e96aef5cfda9191688b2ae924c0f4f62167ba0379d55f91f080e2ebf942",
+      "gasUsed": "79296",
+      "blockNumber": 64
+    },
+    {
+      "actor": "0x14dC79964da2C08b23698B3D3cc7Ca32193d9955",
+      "dex": "DEX1",
+      "direction": "TKA_to_TKB",
+      "amountIn": "1.0",
+      "amountOut": "0.747706074205707427",
+      "txHash": "0x6dbe11fc4bbddfb8f3b1a2764bb4db41f5b202f7677c2839dadc805e0ca35a3b",
+      "gasUsed": "79296",
+      "blockNumber": 65
+    },
+    {
+      "actor": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+      "dex": "DEX2",
+      "direction": "TKB_to_TKA",
+      "amountIn": "1.0",
+      "amountOut": "0.747705712795318958",
+      "txHash": "0x617e5cbd53a6857e1099b8db614dbe16a012ff1f869bf2dd59e742441d117402",
+      "gasUsed": "79378",
+      "blockNumber": 66
+    },
+    {
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "dex": "DEX2",
+      "direction": "TKB_to_TKA",
+      "amountIn": "1.0",
+      "amountOut": "0.734943263258559452",
+      "txHash": "0xff8e7bb0964758fa8292832ae0b60d39f8a9a35229012a3b504e43ad58cec57f",
+      "gasUsed": "79378",
+      "blockNumber": 67
+    }
+  ],
+  "initialPrices": {
+    "dex1": "1.0",
+    "dex2": "1.0"
+  },
+  "afterTrading": {
+    "dex1": {
+      "reserveA": "116000000000000000000",
+      "reserveB": "86244933333657326126",
+      "shares": "100000000000000000000"
+    },
+    "dex2": {
+      "reserveA": "85509948383142323450",
+      "reserveB": "117000000000000000000",
+      "shares": "100000000000000000000"
+    },
+    "priceDex1BperA": "0.74349080460049419",
+    "priceDex2BperA": "1.368261848033879946"
+  },
+  "detector": {
+    "strategy": "compare both two-swap quotes including the 0.3% fee at given input",
+    "direction": "DEX2_to_DEX1",
+    "amountInTKA": "5.0",
+    "intermediateTKB": "6.445055888983176297",
+    "projectedReturnTKA": "8.043361852507376573",
+    "projectedGrossProfitTKA": "3.043361852507376573"
+  },
+  "execution": {
+    "txHash": "0x29ad57ede9740c1104f999a0f2dcccc5dcc5005775a6cbca8f18c151934b1aeb",
+    "blockNumber": 69,
+    "numberOfSwapEventsInOneReceipt": 2,
+    "amountReturnedTKA": "8.043361852507376573",
+    "grossProfitTKA": "3.043361852507376573",
+    "gasUsed": "166829",
+    "gasPriceWei": "132297",
+    "gasCostWei": "22070976213",
+    "gasNote": "Gas is native-token units and NOT subtracted from TKA profit without conversion rate"
+  },
+  "failure": {
+    "forcedMinimumProfitTKA": "100",
+    "reverted": true,
+    "bothDexReservesUnchanged": true,
+    "arbBalancesUnchanged": true
+  }
+}
