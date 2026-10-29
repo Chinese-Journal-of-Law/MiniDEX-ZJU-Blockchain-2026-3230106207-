@@ -1,6 +1,6 @@
 # MiniDEX — AMM DEX & Atomic Arbitrage
 
-> 浙江大学《区块链与数字货币》第二次作业｜`学号【待填】` · `姓名【待填】`  
+> 浙江大学《区块链与数字货币》第二次作业｜`3230106207` · `唐洪强`  
 > **公开仓库地址：**【待填】｜**演示视频：**【待录制】
 
 MiniDEX 是基于 Solidity AMM 的本地去中心化交易所实验，展示 **ERC20领币 → 创建池 → Swap → LP NFT铸造与赎回 → 20用户持续模拟 → 双DEX原子套利Bonus** 的完整流程。项目采用 React + TypeScript + Vite 前端、Hardhat 3 + ethers v6 智能合约测试，以及 Ganache/MetaMask 历史网页演示。
