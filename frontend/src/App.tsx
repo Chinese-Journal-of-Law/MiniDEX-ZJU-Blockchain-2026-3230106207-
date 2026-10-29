@@ -10,7 +10,7 @@ import {
   isError,
 } from "ethers";
 import type { Eip1193Provider } from "ethers";
-import { DEX_ADDRESS, TKA_ADDRESS, TKB_ADDRESS, POOL_ID } from "./contracts";
+import { DEX_ADDRESS, TKA_ADDRESS, TKB_ADDRESS, TKC_ADDRESS, POOL_ID } from "./contracts";
 import { ERC20_ABI, MINIDEX_ABI } from "./abi";
 import PoolManager from "./PoolManager";
 import PoolExplorer from "./PoolExplorer";
@@ -90,6 +90,42 @@ function App() {
   const redeemLock = useRef(false);
   const [swapAmount, setSwapAmount] = useState("10");
   const [swapResult, setSwapResult] = useState("");
+  const [swapPoolId, setSwapPoolId] = useState<1 | 2>(1);
+  const [swapReverse, setSwapReverse] = useState(false);
+  const [swapQuote, setSwapQuote] = useState("");
+  const swapPair = swapPoolId === 1
+    ? { a: "TKA", b: "TKB", aAddress: TKA_ADDRESS, bAddress: TKB_ADDRESS }
+    : { a: "TKA", b: "TKC", aAddress: TKA_ADDRESS, bAddress: TKC_ADDRESS };
+  const swapInSymbol = swapReverse ? swapPair.b : swapPair.a;
+  const swapOutSymbol = swapReverse ? swapPair.a : swapPair.b;
+  const swapInAddress = swapReverse ? swapPair.bAddress : swapPair.aAddress;
+  const swapOutAddress = swapReverse ? swapPair.aAddress : swapPair.bAddress;
+
+  async function previewSwap() {
+    setSwapQuote("");
+    try {
+      const provider = getProvider();
+      const network = await provider.getNetwork();
+      if (network.chainId !== EXPECTED_CHAIN_ID) throw new Error("请切换到 Ganache 1337");
+      const dex = new Contract(DEX_ADDRESS, MINIDEX_ABI, provider);
+      const pool = await dex.pools(BigInt(swapPoolId));
+      if (pool.tokenA.toLowerCase() !== swapPair.aAddress.toLowerCase() ||
+          pool.tokenB.toLowerCase() !== swapPair.bAddress.toLowerCase()) {
+        throw new Error("交易池代币地址不匹配");
+      }
+      const amountIn = parseUnits(swapAmount, 18);
+      if (amountIn <= 0n) throw new Error("兑换数量必须大于0");
+      const reserveIn: bigint = swapReverse ? pool.reserveB : pool.reserveA;
+      const reserveOut: bigint = swapReverse ? pool.reserveA : pool.reserveB;
+      if (reserveIn <= 0n || reserveOut <= 0n) throw new Error("交易池流动性不足");
+      const feeIn = amountIn * 997n;
+      const expected = feeIn * reserveOut / (reserveIn * 1000n + feeIn);
+      if (expected <= 0n) throw new Error("预计输出为0");
+      setSwapQuote(`预计收到 ${formatUnits(expected, 18)} ${swapOutSymbol}；1%滑点下限 ${formatUnits(expected * 99n / 100n, 18)} ${swapOutSymbol}（只读报价）`);
+    } catch (e) {
+      setSwapQuote(e instanceof Error ? `报价失败：${e.message}` : "报价失败");
+    }
+  }
 
   function getProvider() {
     const ethereum = (
@@ -380,159 +416,55 @@ function App() {
   async function swapTokens() {
     setLoading(true);
     setSwapResult("");
-
+    setSwapQuote("");
     try {
       const { signer, wallet } = await connectedAccount();
-
-      if (
-        wallet.toLowerCase() !== TRADER_ADDRESS.toLowerCase()
-      ) {
-        throw new Error(
-          "请切换到 Ganache Account 1（Trader）后再兑换"
-        );
+      if (wallet.toLowerCase() !== TRADER_ADDRESS.toLowerCase()) {
+        throw new Error("请切换到 Ganache Account 1（Trader）后再兑换");
       }
-
       const amountIn = parseUnits(swapAmount, 18);
-
-      if (amountIn <= 0n) {
-        throw new Error("兑换数量必须大于 0");
+      if (amountIn <= 0n) throw new Error("兑换数量必须大于0");
+      const dex = new Contract(DEX_ADDRESS, MINIDEX_ABI, signer);
+      const inputToken = new Contract(swapInAddress, ERC20_ABI, signer);
+      const outputToken = new Contract(swapOutAddress, ERC20_ABI, signer);
+      const pool = await dex.pools(BigInt(swapPoolId));
+      if (pool.tokenA.toLowerCase() !== swapPair.aAddress.toLowerCase() ||
+          pool.tokenB.toLowerCase() !== swapPair.bAddress.toLowerCase()) {
+        throw new Error("交易池代币地址不匹配，拒绝交易");
       }
-
-      const dex = new Contract(
-        DEX_ADDRESS,
-        MINIDEX_ABI,
-        signer
-      );
-
-      const tokenA = new Contract(
-        TKA_ADDRESS,
-        ERC20_ABI,
-        signer
-      );
-
-      const tokenB = new Contract(
-        TKB_ADDRESS,
-        ERC20_ABI,
-        signer
-      );
-
-      const pool = await dex.pools(POOL_ID);
-
-      if (
-        pool.tokenA.toLowerCase() !==
-        TKA_ADDRESS.toLowerCase() ||
-        pool.tokenB.toLowerCase() !==
-        TKB_ADDRESS.toLowerCase()
-      ) {
-        throw new Error("交易池代币地址不匹配");
+      const reserveIn: bigint = swapReverse ? pool.reserveB : pool.reserveA;
+      const reserveOut: bigint = swapReverse ? pool.reserveA : pool.reserveB;
+      if (reserveIn <= 0n || reserveOut <= 0n) throw new Error("交易池没有流动性");
+      if ((await inputToken.balanceOf(wallet)) < amountIn) {
+        throw new Error(`${swapInSymbol} 余额不足`);
       }
-
-      const reserveIn: bigint = pool.reserveA;
-      const reserveOut: bigint = pool.reserveB;
-
-      if (reserveIn <= 0n || reserveOut <= 0n) {
-        throw new Error("交易池没有流动性");
-      }
-
-      const balanceA: bigint =
-        await tokenA.balanceOf(wallet);
-
-      if (balanceA < amountIn) {
-        throw new Error("Trader 的 TKA 余额不足");
-      }
-
-      // AMM 恒定乘积公式，交易手续费 0.3%
-      const amountInWithFee = amountIn * 997n;
-
-      const expectedOut =
-        (amountInWithFee * reserveOut) /
-        (reserveIn * 1000n + amountInWithFee);
-
-      if (expectedOut <= 0n) {
-        throw new Error("预计输出数量为零");
-      }
-
-      // 允许最多 1% 的输出滑点
-      const minAmountOut =
-        (expectedOut * 99n) / 100n;
-
-      if (minAmountOut <= 0n) {
-        throw new Error("最低输出数量为零，请增大兑换数量");
-      }
-
-      setStatus(
-        `预计收到 ${formatUnits(expectedOut, 18)} TKB`
-      );
-
-      const allowance: bigint =
-        await tokenA.allowance(wallet, DEX_ADDRESS);
-
-      if (allowance < amountIn) {
-        setStatus("请在 MetaMask 中确认 TKA 授权");
-
-        const approveTx = await tokenA.approve(
-          DEX_ADDRESS,
-          amountIn
-        );
-
+      const feeIn = amountIn * 997n;
+      const expectedOut = feeIn * reserveOut / (reserveIn * 1000n + feeIn);
+      const minAmountOut = expectedOut * 99n / 100n;
+      if (minAmountOut <= 0n) throw new Error("最低输出数量为零");
+      setStatus(`预计收到 ${formatUnits(expectedOut, 18)} ${swapOutSymbol}`);
+      if ((await inputToken.allowance(wallet, DEX_ADDRESS)) < amountIn) {
+        setStatus(`请在 MetaMask 中确认 ${swapInSymbol} 授权`);
+        const approveTx = await inputToken.approve(DEX_ADDRESS, amountIn);
         const approveReceipt = await approveTx.wait();
-
-        if (
-          !approveReceipt ||
-          approveReceipt.status !== 1
-        ) {
-          throw new Error("TKA 授权失败");
-        }
+        if (!approveReceipt || approveReceipt.status !== 1) throw new Error("代币授权失败");
       }
-
-      // 授权后重新检查储备，避免使用过期报价
-      const latestPool = await dex.pools(POOL_ID);
-
-      if (
-        latestPool.reserveA !== reserveIn ||
-        latestPool.reserveB !== reserveOut
-      ) {
-        throw new Error(
-          "交易池储备已变化，请刷新数据后重新报价"
-        );
+      const latestPool = await dex.pools(BigInt(swapPoolId));
+      if (latestPool.tokenA.toLowerCase() !== swapPair.aAddress.toLowerCase() ||
+          latestPool.tokenB.toLowerCase() !== swapPair.bAddress.toLowerCase() ||
+          latestPool.reserveA !== pool.reserveA || latestPool.reserveB !== pool.reserveB) {
+        throw new Error("池配置或储备已变化，请重新报价");
       }
-
-      const balanceBBefore: bigint =
-        await tokenB.balanceOf(wallet);
-
-      setStatus("请在 MetaMask 中确认 Swap 交易");
-
-      const tx = await dex.swap(
-        POOL_ID,
-        TKA_ADDRESS,
-        amountIn,
-        minAmountOut
-      );
-
+      const balanceBefore: bigint = await outputToken.balanceOf(wallet);
+      setStatus(`请在 MetaMask 中确认 Pool ${swapPoolId} Swap`);
+      const tx = await dex.swap(BigInt(swapPoolId), swapInAddress, amountIn, minAmountOut);
       const receipt = await tx.wait();
-
-      if (!receipt || receipt.status !== 1) {
-        throw new Error("Swap 交易失败");
-      }
-
-      const balanceBAfter: bigint =
-        await tokenB.balanceOf(wallet);
-
-      const actualOut = balanceBAfter - balanceBBefore;
-
-      setSwapResult(
-        `兑换成功！实际收到 ${formatUnits(actualOut, 18)} TKB。交易哈希：${receipt.hash}`
-      );
-
-      // 自动刷新余额和储备
+      if (!receipt || receipt.status !== 1) throw new Error("Swap交易失败");
+      const balanceAfter: bigint = await outputToken.balanceOf(wallet);
+      setSwapResult(`兑换成功！实际收到 ${formatUnits(balanceAfter - balanceBefore, 18)} ${swapOutSymbol}。交易哈希：${receipt.hash}`);
       await readData();
-
     } catch (e) {
-      setStatus(
-        e instanceof Error
-          ? `Swap 停止：${e.message}`
-          : "Swap 操作失败"
-      );
+      setStatus(e instanceof Error ? `Swap 停止：${e.message}` : "Swap 操作失败");
     } finally {
       setLoading(false);
     }
@@ -997,15 +929,22 @@ function App() {
             <div className="page-heading"><span className="section-kicker">TRADE / SWAP</span><h1>代币兑换</h1><p>使用恒定乘积 AMM 交换代币。这里的交易与报价均以连接的本地链为准。</p></div>
             <div className="two-column-main">
               <section className="form-card trade-card">
-                <div className="module-title-row"><h2>Swap TKA → TKB</h2><span className="mini-tag">Pool 1</span></div>
-                <p className="field-hint">请切换到 Ganache Account 1（Trader），并在 MetaMask 确认交易详情。</p>
-                <label className="amount-label" htmlFor="swap-amount">支付数量 <span>TKA</span></label>
-                <div className="amount-field"><input id="swap-amount" type="number" min="0" step="any" value={swapAmount} onChange={(e) => setSwapAmount(e.target.value)} disabled={loading}/><span className="token-bubble">TKA</span></div>
-                <div className="swap-direction-icon"><WorkspaceIcon name="arrows" size={18}/></div>
-                <div className="receive-preview"><span>接收代币</span><strong>TKB <small>以实际回执为准</small></strong></div>
+                <div className="module-title-row"><h2>Swap {swapInSymbol} → {swapOutSymbol}</h2><span className="mini-tag">Pool {swapPoolId}</span></div>
+                <p className="field-hint">请选择交易池和兑换方向。只读报价不会发送交易；真实交易需 Ganache Account 1（Trader）在 MetaMask 确认。</p>
+                <label className="amount-label" htmlFor="swap-pool">选择交易池</label>
+                <select id="swap-pool" value={swapPoolId} disabled={loading} onChange={(e) => {setSwapPoolId(e.target.value === "2" ? 2 : 1); setSwapReverse(false); setSwapQuote(""); setSwapResult("");}}>
+                  <option value={1}>Pool 1 · TKA / TKB</option>
+                  <option value={2}>Pool 2 · TKA / TKC</option>
+                </select>
+                <label className="amount-label" htmlFor="swap-amount">支付数量 <span>{swapInSymbol}</span></label>
+                <div className="amount-field"><input id="swap-amount" type="number" min="0" step="any" value={swapAmount} onChange={(e) => {setSwapAmount(e.target.value);setSwapQuote("");}} disabled={loading}/><span className="token-bubble">{swapInSymbol}</span></div>
+                <button type="button" className="swap-direction-icon" aria-label="切换兑换方向" onClick={() => {setSwapReverse(v=>!v);setSwapQuote("");setSwapResult("");}} disabled={loading}><WorkspaceIcon name="arrows" size={18}/></button>
+                <div className="receive-preview"><span>接收代币</span><strong>{swapOutSymbol} <small>以实际回执为准</small></strong></div>
+                <button type="button" className="button-ghost-light" onClick={previewSwap} disabled={loading}>只读获取当前报价（不发送交易）</button>
+                {swapQuote && <p role="status" className="inline-result">{swapQuote}</p>}
                 <div className="fee-row"><span>交易手续费</span><strong>0.3%</strong></div>
                 <div className="fee-row"><span>最大滑点保护</span><strong>1%</strong></div>
-                <button className="button-primary full-button" type="button" onClick={swapTokens} disabled={loading || !data}>{loading ? "正在处理…" : "授权并兑换 TKA → TKB"}<WorkspaceIcon name="arrow" size={18}/></button>
+                <button className="button-primary full-button" type="button" onClick={swapTokens} disabled={loading || !data}>{loading ? "正在处理…" : `授权并兑换 ${swapInSymbol} → ${swapOutSymbol}`}<WorkspaceIcon name="arrow" size={18}/></button>
                 {swapResult && <p className="inline-result" role="status"><strong>兑换结果：</strong>{swapResult}</p>}
                 {!data && <p className="form-footnote">请先在「总览仪表盘」连接钱包并读取数据。</p>}
               </section>
