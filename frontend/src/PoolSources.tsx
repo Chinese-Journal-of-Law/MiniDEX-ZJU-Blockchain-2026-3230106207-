@@ -18,6 +18,8 @@ type PoolItem = {
   id: string;
   tokenA: string;
   tokenB: string;
+  symbolA: string;
+  symbolB: string;
   reserveA: string;
   reserveB: string;
   totalShares: string;
@@ -69,6 +71,8 @@ export default function PoolSources() {
           id: id.toString(),
           tokenA: `${sa} (${record.tokenA})`,
           tokenB: `${sb} (${record.tokenB})`,
+          symbolA: sa,
+          symbolB: sb,
           reserveA: `${formatUnits(record.reserveA, decA)} ${sa}`,
           reserveB: `${formatUnits(record.reserveB, decB)} ${sb}`,
           totalShares: record.totalShares.toString(),
@@ -140,7 +144,7 @@ export default function PoolSources() {
           ) : pool.positions.map(pos => (
             <div key={pos.id} style={{ borderTop: "1px solid #ccc", paddingTop: 8 }}>
               <strong>NFT #{pos.id} — 当前持有人 {pos.owner}</strong>
-              <p>原始投入：{pos.amountA} Token A + {pos.amountB} Token B</p>
+              <p>原始投入：{pos.amountA} {pool.symbolA} + {pos.amountB} {pool.symbolB}</p>
               <p>份额（原始单位）：{pos.shares}；创建时间：{pos.created}</p>
             </div>
           ))}
