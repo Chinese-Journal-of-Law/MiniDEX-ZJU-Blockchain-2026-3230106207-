@@ -1,11 +1,13 @@
 # MiniDEX — AMM DEX & Atomic Arbitrage
 
-> 浙江大学《区块链与数字货币》第二次作业｜`3230106207` · `唐洪强`  
-> **公开仓库地址：**https://github.com/Chinese-Journal-of-Law/MiniDEX-ZJU-Blockchain-2026-3230106207-
+> 浙江大学《区块链与数字货币》第二次作业｜`学号【待填】` · `姓名【待填】`
+**公开仓库：** [GitHub 项目地址](https://github.com/Chinese-Journal-of-Law/MiniDEX-ZJU-Blockchain-2026-3230106207-)
+
+**演示视频：** 录制中，将按课程要求随提交邮件提供。
 
 MiniDEX 是基于 Solidity AMM 的本地去中心化交易所实验，展示 **ERC20领币 → 创建池 → Swap → LP NFT铸造与赎回 → 20用户持续模拟 → 双DEX原子套利Bonus** 的完整流程。项目采用 React + TypeScript + Vite 前端、Hardhat 3 + ethers v6 智能合约测试，以及 Ganache/MetaMask 历史网页演示。
 
-![MiniDEX overview](docs/images/ui_01_dashboard_connected.png)
+![MiniDEX 首页总览](report/docs/images/ui_01_dashboard_connected.png)
 
 ## 主要功能
 
@@ -104,6 +106,6 @@ contracts/test/*.mjs               # 隔离测试
 
 ## 提交
 
-依据课程PPT的要求：仓库根目录完整README、源码、操作和钱包链交互截图，以及**1–2分钟清晰压缩视频**。将公开GitHub链接与压缩视频按要求邮件提交至`hinsliu@zju.edu.cn`，邮件主题和视频文件名使用`学号_姓名_作业2`，课件截止为2026-11-06。
+课程PPT要求：仓库根目录完整README、源码、操作和钱包链交互截图，以及**1–2分钟清晰压缩视频**。将公开GitHub链接与压缩视频按要求邮件提交至`hinsliu@zju.edu.cn`，邮件主题和视频文件名使用`学号_姓名_作业2`，课件截止为2026-11-06（以课程最新通知为准）。允许AI辅助学习与实现，但应如实核验、避免抄袭。
 
 提交之前检查`.env`、私钥、助记词、`node_modules`及历史`.bak`或临时补丁是否误入远端，建议只提交稳定源代码、必要依赖锁文件、README、报告及有代表性的证据。
