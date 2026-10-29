@@ -1,18 +1,125 @@
-# MiniDEX Bonus: dual-DEX atomic arbitrage
+# MiniDEX Bonus：双DEX与原子套利实验
 
-This is an isolated Bonus demonstration, not a modification to the deployed Ganache DEX.
+浙江大学《区块链与数字货币》第二次作业
+学号：3230106207
+姓名：唐洪强
 
-- `contracts/contracts/BonusAtomicArbitrage.sol`: pre-funded, owner-controlled two-swap atomic arbitrage with minimum profit guard.
-- `contracts/test/bonus-atomic-arbitrage.test.mjs`: deploys two distinct MiniDEX contracts and two tokens on isolated Hardhat EDR 31337, creates identical token pair at different prices, demonstrates profitable A -> B -> A trade, then asserts an unprofitable attempt reverts both swaps.
+## 1. 实验目的
 
-Run in PowerShell from project root:
+在完成MiniDEX基本功能后，我继续尝试了作业中的Bonus部分，主要包括两个内容：
+
+1. 部署两个独立的DEX，使相同交易对在两个交易池中具有不同价格。
+2. 编写原子套利合约，在一笔交易中完成两次Swap，并验证套利成功和失败回滚的情况。
+
+这部分实验使用独立的Hardhat测试网络，不会修改之前在Ganache中部署的MiniDEX，也不会影响已经创建的流动性池和LP NFT。
+
+## 2. 双DEX的实现
+
+本次实验没有重新设计一套DEX合约，而是部署两个独立的MiniDEX合约实例。
+
+两个DEX使用相同的TKA/TKB交易对，但初始流动性不同：
+
+| 项目      | DEX 1         | DEX 2           |
+| ------- | ------------- | --------------- |
+| 交易对     | TKA/TKB       | TKA/TKB         |
+| 初始TKA储备 | 100           | 100             |
+| 初始TKB储备 | 100           | 150             |
+| 初始价格    | 1 TKA ≈ 1 TKB | 1 TKA ≈ 1.5 TKB |
+
+由于两个DEX的储备比例不同，同一种Token在两个池中的兑换价格也不同，因此存在套利机会。
+
+这里需要注意，虽然两个DEX使用同一份MiniDEX合约代码，但它们是两个独立部署的合约实例，各自维护自己的储备和交易状态，并不是同一个DEX中的两个流动性池。
+
+## 3. 原子套利合约
+
+套利合约位于：
+
+`contracts/contracts/BonusAtomicArbitrage.sol`
+
+实验采用预先准备的TKA作为本金，不使用闪电贷。
+
+套利过程为：
+
+1. 使用TKA在DEX 2中兑换TKB。
+2. 将获得的TKB在DEX 1中兑换回TKA。
+3. 比较最终获得的TKA与初始投入的TKA。
+4. 如果收益没有达到要求，整笔交易回滚。
+
+两次Swap在同一笔区块链交易中完成。
+
+这样做的好处是，如果第二次兑换失败，或者最终收益不足，第一次兑换也不会单独保留，避免出现只完成一半套利的情况。
+
+### 套利收益的计算
+
+本次实验中，套利收益按照TKA计算：
+
+**套利毛利润 = 最终获得的TKA − 初始投入的TKA**
+
+需要说明的是，合约中的兑换还受到0.3% Swap手续费和池内价格变化的影响，因此不能直接使用两个池的初始价格差计算实际利润。
+
+此外，这里计算的是以TKA计价的毛利润，并没有扣除Gas成本，也没有考虑实际市场中的交易机会成本。
+
+## 4. 自动化测试
+
+Bonus相关测试文件位于：
+
+`contracts/test/bonus-atomic-arbitrage.test.mjs`
+
+在项目根目录打开PowerShell，执行：
 
 ```powershell
 Set-Location .\contracts
 npx hardhat test mocha test/bonus-atomic-arbitrage.test.mjs --network hardhat
-if ($LASTEXITCODE -ne 0) { throw "Bonus test failed" }
 ```
 
-Expected: 1 passing; console shows distinct DEX addresses via transaction evidence, calculated profit in TKA, and atomic revert verification. No Ganache writes.
+测试主要检查以下内容：
 
-Important: This is NOT flash-loan arbitrage. Capital is prefunded. Gas and opportunity costs are not deducted from the TKA-denominated gross profit. Both DEXs are simulated instances of the same MiniDEX contract, which satisfies the two-DEX demonstration concept but course grading must be checked against the official assignment.
+* 两个DEX是否为不同的合约实例。
+* 两个DEX是否使用相同交易对并形成价格差。
+* 套利合约能否在一笔交易中完成两次Swap。
+* 套利成功后是否获得正的TKA毛利润。
+* 当最低利润要求无法满足时，交易是否整体回滚。
+* 失败后两个DEX的储备是否保持不变。
+
+其中，我认为比较重要的是最后两项，因为它们可以验证原子套利不只是连续调用两次Swap，还具有失败时整体回滚的性质。
+
+## 5. 增强测试
+
+除基础套利测试外，项目中还设置了Bonus覆盖测试：
+
+`contracts/test/bonus-rubric-coverage.test.mjs`
+
+运行命令：
+
+```powershell
+npx hardhat test mocha test/bonus-rubric-coverage.test.mjs --network hardhat
+```
+
+增强测试用于进一步检查双DEX交易、价格变化、套利路线及利润计算等内容。
+
+这部分的具体交易次数、利润数值和测试结果应以实际运行日志为准，不把预期值当成已经验证的结果。
+
+## 6. 测试网络说明
+
+本项目使用两个互相独立的本地区块链环境。
+
+| 网络                   | Chain ID | 用途                    |
+| -------------------- | -------- | --------------------- |
+| Ganache `aware-coil` | 1337     | 基础DEX网页演示、历史交易及LP NFT |
+| Hardhat EDR          | 31337    | 自动化测试、20用户模拟和Bonus套利  |
+
+Bonus测试只在Hardhat隔离环境中部署临时合约，不需要重新部署Ganache中的原有合约。
+
+因此，之前完成的Pool 1、Pool 2以及NFT #4/#5不会因为运行Bonus测试而发生变化。
+
+## 7. 实验总结
+
+通过这部分实验，我对AMM的价格机制有了更直观的理解。
+
+最开始只是通过两个池的储备比例制造价格差，但实际测试时还需要考虑Swap手续费和交易过程中价格的变化。存在价格差并不一定代表任意交易金额都能盈利。
+
+原子套利部分则让我进一步理解了Solidity交易回滚的作用。将两次兑换放在同一笔交易中，可以避免第一笔成功而第二笔失败后留下不完整的交易结果。
+
+目前实现的是基于预存本金的双DEX原子套利，主要用于课程实验验证，不涉及闪电贷，也没有实现真实市场中的自动监听和交易执行。
+
+Bonus的相关源码和测试保存在仓库中，可以通过上述Hardhat命令独立复现。
